@@ -1,46 +1,66 @@
-var buttonColors=["red", "blue", "green", "yellow"];
+let numClick = -1;
+let userPattern = [];
+let correctPattern = [];
+let possibleColors = ["red", "blue", "green", "yellow"];
 
-var gamePattern = [];
-// generating a random number
-function nextSequence(){
-  var randomNumber = Math.floor(Math.random() * 4);
-}
-// by the random number we get the color
-var randomChosenColour = buttonColors[randomNumber];
-// shtojme ngjyren
-gamePattern.push(randomChosenColour);
-//random ID qe zgjedh nje ngjyre dhe e pulson ate
-$(document).ready(function(){
-  $("button").click(function(){
-    $("#gamePattern\\[randomChosenColour\\]").animateHighlight("#dd0000", 1000);
-  });
+let level = 0;
+let highscore = 0;
+
+$(".btn").click(function(buttonClicked){
+  numClick++;
+  let color = buttonClicked.target.id;
+  clickAnimation("#" + color);
+  playAudio(color);
 });
 
-function makeSound(button) {
+function checkAnswer(color){
+  userPattern.push(color);
+  if(color == correctPattern[numClick]){
+    if(userPattern.length == correctPattern.length){
+      setTimeout(function){
+        userPattern = [];
+        numClick = -1;
+        nextSequence();
+      }
+    } else {
 
-  switch (button) {
-    case "blue":
-      var blue_sound = new Audio("sounds\blue.mp3");
-      blue_sound.play();
-      break;
-
-    case "green":
-      var green_sound = new Audio("sounds\green.mp3");
-      green_sound.play();
-      break;
-
-    case "red":
-      var red_sound = new Audio('sounds\red.mp3');
-      red_sound.play();
-      break;
-
-    case "yellow":
-      var yellow_sound = new Audio('sounds\yellow.mp3');
-      yellow_sound.play();
-      break;
-
-    default: var wrong_sound = new Audio('sounds\wrong.mp3');
-    wrong_sound.play();
-    break;
+    }
+  } else{
+    $("h2").text("Game Over! Hit another key to try again");
+    userPattern =0;
+    correctPattern= [];
+    if(level>highscore){
+      highscore = level;
+      $("#highscore").text(level);
+    }
+    level = 0;
+    numClick= -1;
   }
 }
+
+function nextSecuence(){
+  level++;
+  $("#level").text(level);
+  let rand = Math.floor(Math.random() * 4);
+  let color = possibleColors[rand];
+  correctPattern.push(color);
+  playAudio(color);
+  clickAnimation("#" + color);
+}
+
+function playAudio(color){
+  let relPath = 'sounds/$(color).mp3';
+  let audio = new Audio(relPath);
+  audio.play();
+}
+
+function clickAnimation(id){
+  $(id).fadeOut(100).fadeIn(100);
+}
+
+$(document).keydown(function(){
+  if(level <=0){
+    $("h2").text("The game begins!");
+    nextSecuence();
+  }
+});
